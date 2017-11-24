@@ -13,10 +13,11 @@ var way;
             this.end = { label: end, index: this.headerRow.indexOf(end) };
             //
             this.findWay();
+            let minWay = this.getMinRoute();
+            console.log(`Route: ${minWay.route}; Price: ${minWay.price}`);
         }
 
         createHeaderRow() {
-            //create names of colunms
             let row = [];
             row.push(this.data[0][0]);
             data.forEach(function (value) {
@@ -58,7 +59,7 @@ var way;
                 if (this.matrix[this.start.index][k] != undefined) {
                     price = this.matrix[this.start.index][k].value;
                     for (let l = k, q = k; l < this.matrix.length; l++) {
-                        newRoute: for (let i = q; i < this.matrix[k].length; i++) {
+                        for (let i = q; i < this.end.index; i++) {
                             for (let j = 0; j < this.matrix[k].length; j++) {
                                 if (this.matrix[i][j] != undefined) {
                                     if (!this.isRowVisited(this.matrix[i]) && this.matrix[i][j].visitedAmount != this.getMinVisitedAmount(this.matrix[i])) {
@@ -69,21 +70,24 @@ var way;
                                     price += this.matrix[i][j].value;
                                     this.matrix[i][j].visitedAmount += 1;
                                     i = j - 1;
-                                    if(j = this.end.index){
-                                        break;
+                                    if (i == this.end.index && j != this.end.index) {
+                                        console.log('hello');
+                                        str = '';
+                                        price = this.matrix[this.start.index][k].value;
                                     }
                                     break;
                                 }
                             }
                         }
-
-                        arr.push({ route: `A > ${str}F`, price: price });
-                        str = '';
-                        price = this.matrix[this.start.index][k].value;
+                        if (str) {
+                            arr.push({ route: `${this.start.label} > ${str}${this.end.label}`, price: price });
+                            str = '';
+                            price = this.matrix[this.start.index][k].value;
+                        }
                     }
                 }
             }
-            console.log(arr);
+            this.resultArray = arr;
         }
 
         isRowEmpty(row) {
@@ -108,7 +112,7 @@ var way;
             }
             return true;
         }
-        getMinVisitedAmount(row){
+        getMinVisitedAmount(row) {//возращает максимальный
             let min = 9999999999;
             row.forEach(function (item) {
                 if (item != undefined) {
@@ -117,18 +121,27 @@ var way;
             });
             return min;
         }
+
+        getMinRoute(){
+            let min = this.resultArray[0].price,
+            i = 0;
+            this.resultArray.forEach(function(value, index){
+                if(min > value.price){
+                    min = value.price;
+                    i = index;
+                }
+            });
+            return this.resultArray[i];
+        }
     }
 
     let data = [['A', 'B', 160, 40],
     ['A', 'C', 120, 60],
     ['B', 'D', 210, 21],
     ['B', 'C', 100, 20],
-    ['B', 'E', 300, 50],
     ['C', 'E', 300, 100],
     ['E', 'D', 200, 50],
-    ['E', 'F', 300, 100],
-    ['D', 'F', 110, 10],
-];
+    ['D', 'F', 110, 10]];
 
     way = new Way({ data: data, a: 'A', b: 'F' });
 
